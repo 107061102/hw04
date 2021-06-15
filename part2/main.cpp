@@ -52,7 +52,7 @@ void Follow(){
 
     while(1) {
         re = 0;
-        //printf("%s\n", recvall);
+        printf("%s\n", recvall);
         i = 0;
         count = 0;
         while(recvall[count] != ' '){
@@ -61,30 +61,33 @@ void Follow(){
             count++;
         }
         i = 0;
+        count++;
         while(recvall[count] != ' '){
             ny1[i] = recvall[count];
             i++;
             count++;
         }
         i = 0;
+        count++;
         while(recvall[count] != ' '){
             nx2[i] = recvall[count];
             i++;
             count++;
         }
         i = 0;
+        count++;
         while(recvall[count] != ')'){
             ny2[i] = recvall[count];
             i++;
             count++;
         }
         i = 0;
-
-        x1 = atoi(nx1[0]);
-        y1 = atoi(ny1[1]);
-        x2 = atoi(nx2[2]);
-        y2 = atoi(ny2[3]);
-
+        
+        x1 = atoi(nx1);
+        y1 = atoi(ny1);
+        x2 = atoi(nx2);
+        y2 = atoi(ny2);
+        printf("%d, %d, %d. %d\n", x1, y1, x2, y2);
         if (y1 > y2) {
             int temp;
             temp = x1;
@@ -101,12 +104,16 @@ void Follow(){
         
         if (abs(dx) + abs(dy) > 0) {
             if (x1 < 70) {
-                car.turn(35, 1);
-                
+                car.turn(30, 1);
+                printf("Right\n");
+                ThisThread::sleep_for(50ms);
+                car.stop();
             }
             else if (x1 > 90) {
-                car.turn(-35, 1);
-                
+                car.turn(-30, 1);
+                printf("LEFT\n");
+                ThisThread::sleep_for(50ms);
+                car.stop();
             }
             else {
                 car.goStraight(35);
@@ -116,9 +123,14 @@ void Follow(){
             car.stop();
         }
 
-
+        for (i = 0; i < 4; i++) {
+            nx1[i] = '\0';
+            ny1[i] = '\0';
+            nx2[i] = '\0';
+            ny2[i] = '\0';
+        }
         re = 1;
-        ThisThread::sleep_for(100ms);
+        ThisThread::sleep_for(50ms);
     }
 
 }
