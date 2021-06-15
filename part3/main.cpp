@@ -8,12 +8,13 @@ PwmOut pin5(D5), pin6(D6);
 Ticker servo_ticker;
 BufferedSerial pc(USBTX,USBRX); //tx,rx
 BufferedSerial uart(A1,A0); //tx,rx
-DigitalInOut pin10(D10);
+DigitalInOut ping(D10);
 BufferedSerial xbee(D1, D0);
 
 BBCar car(pin5, pin6, servo_ticker);
 
 Thread t1;
+Timer t;
 EventQueue queue(64 * EVENTS_EVENT_SIZE);
 char recvall[30], tmp[20];
 int now;
@@ -21,7 +22,7 @@ int re = 1;
 
 void Follow();
 void RD();
-parallax_ping  ping1(pin10);
+//parallax_ping  ping1(pin10);
 int main(){
     xbee.set_baud(9600);
    char recv[1];
@@ -58,8 +59,8 @@ void Follow(){
     int turn = 0;
     float r;
     bool stop = false;
-    char buff[30];
-    float dis;
+    char buff[25];
+    float dis, val;
     while(1){
         re = 0;
         //printf("%s\n", recvall);
@@ -78,10 +79,7 @@ void Follow(){
         }
         tx = atoi(n[0]);
         ry = atoi(n[1]);
-        //tx = 0;
-        //ry = 0;
         len = strlen(recvall);
-        //len = 1;
         printf("%d %d %d\n", strlen(recvall), tx, ry);
         re = 1;
         for (i = 0; i < 2; i++) {
@@ -114,21 +112,20 @@ void Follow(){
                     car.stop();
                 }
             } else {
-                if (tx <= -1){
+                if (tx <= -2){
                     printf("RIGHT\n");
                     car.turn(30,1); 
                     turn = 0;
-                } else if (tx > 1) {
+                } else if (tx > 2) {
                     printf("LEFT\n");
                     car.turn(-30,1);
                     turn = 0;
                 } else {
                     car.stop();
-                    printf("goal");
-                    //dis = ping1;
-                    sprintf(buff, "distance , angle = %d\r\n", ry);
+                    strcpy(buff, "");
+                    sprintf(buff, "angle = %d\r\n", ry);
                     xbee.write(buff, sizeof(buff));
-                    //return;
+                    ThisThread::sleep_for(75ms);
                 }
             }
         }
