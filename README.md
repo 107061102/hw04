@@ -1,5 +1,5 @@
 # 改library
-首先先進入各part的bbcar/bbcar/bbcar.cpp把turn改成
+首先先進入各part的bbcar/bbcar/bbcar.cpp把turn改成  
 void BBCar::turn( double speed, double factor ){  
     servo0.set_factor(1);  
     servo1.set_factor(1);  
