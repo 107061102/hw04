@@ -22,17 +22,16 @@ int re = 1;
 
 void Follow();
 void RD();
-//parallax_ping  ping1(pin10);
 int main(){
-    xbee.set_baud(9600);
+   xbee.set_baud(9600);
    char recv[1];
    uart.set_baud(9600);
    t1.start(callback(&queue, &EventQueue::dispatch_forever));
    queue.call(Follow);
+
    while(1){
       if(uart.readable()){
             uart.read(recv, sizeof(recv));
-            //pc.write(recv, sizeof(recv));
             if(recv[0] == '(') now = 0;
             else if(recv[0] == ')') {
                 tmp[now] = recv[0];
@@ -47,23 +46,19 @@ int main(){
 }
 
 void Follow(){
-    char n[2][10];
-    int tx, ry;
+    char n[2][5];
+    int tx, angle;
     int i = 0;
     int j = 0;
     int count = 0;
-    int dx, dy;
-    int deg;
     int len;
     float a = 2.3;
     int turn = 0;
     float r;
-    bool stop = false;
     char buff[25];
     float dis, val;
     while(1){
         re = 0;
-        //printf("%s\n", recvall);
         i = 0;
         j = 0;
         count = 0;
@@ -78,12 +73,48 @@ void Follow(){
             i++;
         }
         tx = atoi(n[0]);
-        ry = atoi(n[1]);
+        angle = atoi(n[1]);
         len = strlen(recvall);
-        printf("%d %d %d\n", strlen(recvall), tx, ry);
         re = 1;
+        
+
+        if (len == 0) {
+            if (turn == 2){
+                car.turn(30,1);
+                ThisThread::sleep_for(75ms);
+                car.stop();
+            } else if (turn == 1) {
+                car.turn(-30,1);
+                ThisThread::sleep_for(75ms);
+                car.stop();
+            }
+        } else if (angle > 3 && angle < 60) {
+            turn = 1;
+            car.goStraight(30); 
+        } else if (angle < 357 && angle > 300) {
+            turn = 2;
+            car.goStraight(30);  
+        } else { 
+            if (tx <= -2){
+                car.turn(30,1); 
+                turn = 0;
+            } else if (tx > 2) {
+                car.turn(-30,1);
+                turn = 0;
+            } else {
+                car.stop();
+                ThisThread::sleep_for(500ms);
+                strcpy(buff, "");
+                sprintf(buff, "angle = %d\r\n", angle);
+                xbee.write(buff, sizeof(buff));
+                ThisThread::sleep_for(75ms);
+            }
+        }
+
+        ThisThread::sleep_for(100ms);
+
         for (i = 0; i < 2; i++) {
-            for (j = 0; j < 10; j++) {
+            for (j = 0; j < 5; j++) {
                 n[i][j] = '\0';
             }
         }
@@ -91,45 +122,6 @@ void Follow(){
             recvall[i] = '\0';
         
         }
-
-        if (ry > 3 && ry < 20) {
-            printf("L and go");
-            turn = 1;
-            car.goStraight(30); 
-        } else if (ry < 357 && ry > 340) {
-            printf("R and go");
-            turn = 2;
-            car.goStraight(30);  
-        } else {
-            if (len == 0) {
-                if (turn == 2){
-                    car.turn(30,1);
-                    ThisThread::sleep_for(75ms);
-                    car.stop();
-                } else if (turn == 1) {
-                    car.turn(-30,1);
-                    ThisThread::sleep_for(75ms);
-                    car.stop();
-                }
-            } else {
-                if (tx <= -2){
-                    printf("RIGHT\n");
-                    car.turn(30,1); 
-                    turn = 0;
-                } else if (tx > 2) {
-                    printf("LEFT\n");
-                    car.turn(-30,1);
-                    turn = 0;
-                } else {
-                    car.stop();
-                    strcpy(buff, "");
-                    sprintf(buff, "angle = %d\r\n", ry);
-                    xbee.write(buff, sizeof(buff));
-                    ThisThread::sleep_for(75ms);
-                }
-            }
-        }
-        ThisThread::sleep_for(100ms);
     }
 
 }
