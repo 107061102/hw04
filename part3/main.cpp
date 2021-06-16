@@ -20,14 +20,14 @@ char recvall[30], tmp[20];
 int now;
 int re = 1;
 
-void Follow();
+void April();
 void RD();
 int main(){
-   xbee.set_baud(9600);
    char recv[1];
+   xbee.set_baud(9600);
    uart.set_baud(9600);
    t1.start(callback(&queue, &EventQueue::dispatch_forever));
-   queue.call(Follow);
+   queue.call(April);
 
    while(1){
       if(uart.readable()){
@@ -45,14 +45,13 @@ int main(){
    }
 }
 
-void Follow(){
+void April(){
     char n[2][5];
     int tx, angle;
     int i = 0;
     int j = 0;
     int count = 0;
     int len;
-    float a = 2.3;
     int turn = 0;
     float r;
     char buff[25];
@@ -75,10 +74,20 @@ void Follow(){
         tx = atoi(n[0]);
         angle = atoi(n[1]);
         len = strlen(recvall);
+
+        for (i = 0; i < 2; i++) {
+            for (j = 0; j < 5; j++) {
+                n[i][j] = '\0';
+            }
+        }
+        for (i = 0; i < 30; i++) {
+            recvall[i] = '\0';
+        
+        }
         re = 1;
         
-
         if (len == 0) {
+            printf("NO\n");
             if (turn == 2){
                 car.turn(30,1);
                 ThisThread::sleep_for(75ms);
@@ -98,10 +107,11 @@ void Follow(){
             if (tx <= -2){
                 car.turn(30,1); 
                 turn = 0;
-            } else if (tx > 2) {
+            } else if (tx >= 2) {
                 car.turn(-30,1);
                 turn = 0;
             } else {
+                printf("STOP");
                 car.stop();
                 ThisThread::sleep_for(500ms);
                 strcpy(buff, "");
@@ -113,15 +123,7 @@ void Follow(){
 
         ThisThread::sleep_for(100ms);
 
-        for (i = 0; i < 2; i++) {
-            for (j = 0; j < 5; j++) {
-                n[i][j] = '\0';
-            }
-        }
-        for (i = 0; i < 30; i++) {
-            recvall[i] = '\0';
         
-        }
     }
 
 }
