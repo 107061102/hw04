@@ -24,7 +24,7 @@ void Follow();
 void RD();
 //parallax_ping  ping1(pin10);
 int main(){
-    xbee.set_baud(9600);
+   xbee.set_baud(9600);
    char recv[1];
    uart.set_baud(9600);
    t1.start(callback(&queue, &EventQueue::dispatch_forever));
