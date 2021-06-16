@@ -8,7 +8,9 @@ PwmOut pin5(D5), pin6(D6);
 Ticker servo_ticker;
 BufferedSerial pc(USBTX,USBRX); //tx,rx
 BufferedSerial uart(A1,A0); //tx,rx
-DigitalInOut ping(D10);
+
+//DigitalInOut ping(D10);
+
 BufferedSerial xbee(D1, D0);
 
 BBCar car(pin5, pin6, servo_ticker);
@@ -22,6 +24,8 @@ int re = 1;
 
 void April();
 void RD();
+
+//parallax_ping  ping10(pin10);
 int main(){
    char recv[1];
    xbee.set_baud(9600);
@@ -111,10 +115,12 @@ void April(){
                 car.turn(-30,1);
                 turn = 0;
             } else {
-                printf("STOP");
                 car.stop();
                 ThisThread::sleep_for(500ms);
                 strcpy(buff, "");
+                /*dis = ping10;
+                sprintf(buff, "distance %.2f, angle = %d\r\n", (float)ping1, angle);
+                xbee.write(buff, sizeof(buff));*/
                 sprintf(buff, "angle = %d\r\n", angle);
                 xbee.write(buff, sizeof(buff));
                 ThisThread::sleep_for(75ms);
